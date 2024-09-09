@@ -6,4 +6,8 @@ public class Calculadora {
         return a + b;
     }
 
+    public float dividir(int num, int den) {
+        return (float) num / den;
+    }
+
 }
