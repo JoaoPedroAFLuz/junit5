@@ -5,19 +5,19 @@ import br.com.joaopedroafluz.barriga.domain.exceptions.ValidationException;
 public class Usuario {
 
     private Long id;
-    private String name;
+    private String nome;
     private String email;
-    private String password;
+    private String senha;
 
-    public Usuario(Long id, String name, String email, String password) {
-        if (name == null) throw new ValidationException("Nome não pode ser nulo");
-        if (email == null) throw new ValidationException("Email não pode ser nulo");
-        if (password == null) throw new ValidationException("Senha não pode ser nula");
+    public Usuario(Long id, String nome, String email, String senha) {
+        if (nome == null) throw new ValidationException("Nome é obrigatório");
+        if (email == null) throw new ValidationException("Email é obrigatório");
+        if (senha == null) throw new ValidationException("Senha é obrigatória");
 
         this.id = id;
         this.email = email;
-        this.name = name;
-        this.password = password;
+        this.nome = nome;
+        this.senha = senha;
     }
 
     public Long getId() {
@@ -28,12 +28,12 @@ public class Usuario {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getNome() {
+        return nome;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public String getEmail() {
@@ -44,12 +44,12 @@ public class Usuario {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getSenha() {
+        return senha;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
 }

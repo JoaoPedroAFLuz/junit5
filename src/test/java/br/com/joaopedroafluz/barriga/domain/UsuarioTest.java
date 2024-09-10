@@ -1,5 +1,6 @@
 package br.com.joaopedroafluz.barriga.domain;
 
+import br.com.joaopedroafluz.barriga.domain.builders.UsuarioBuilder;
 import br.com.joaopedroafluz.barriga.domain.exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
@@ -9,38 +10,43 @@ public class UsuarioTest {
 
     @Test
     public void deveCriarUsuarioValido() {
-        var usuario = new Usuario(1L, "João", "joao.pedro.luz@hotmail.com", "123");
+        var usuario = UsuarioBuilder.umUsuario()
+                .comId(1L)
+                .comNome("João")
+                .comEmail("joao.pedro.luz@hotmail.com")
+                .comSenha("123456789")
+                .build();
 
         assertAll("Criação de usuário",
                 () -> assertNotNull(usuario),
                 () -> assertEquals(1L, usuario.getId()),
-                () -> assertEquals("João", usuario.getName()),
+                () -> assertEquals("João", usuario.getNome()),
                 () -> assertEquals("joao.pedro.luz@hotmail.com", usuario.getEmail()),
-                () -> assertEquals("123", usuario.getPassword()));
+                () -> assertEquals("123456789", usuario.getSenha()));
     }
 
     @Test
     public void deveRejeitarCriacaoUsuarioSemNome() {
         var validationException = assertThrows(ValidationException.class,
-                () -> new Usuario(1L, null, "joao.pedro.luz@hotmail.com", "123"));
+                () -> UsuarioBuilder.umUsuario().comNome(null).build());
 
-        assertEquals("Nome não pode ser nulo", validationException.getMessage());
+        assertEquals("Nome é obrigatório", validationException.getMessage());
     }
 
     @Test
     public void deveRejeitarCriacaoUsuarioSemEmail() {
         var validationException = assertThrows(ValidationException.class,
-                () -> new Usuario(1L, "João", null, "123"));
+                () -> UsuarioBuilder.umUsuario().comEmail(null).build());
 
-        assertEquals("Email não pode ser nulo", validationException.getMessage());
+        assertEquals("Email é obrigatório", validationException.getMessage());
     }
 
     @Test
     public void deveRejeitarCriacaoUsuarioSemSenha() {
         var validationException = assertThrows(ValidationException.class,
-                () -> new Usuario(1L, "João", "joao.pedro.luz@hotmail.com", null));
+                () -> UsuarioBuilder.umUsuario().comSenha(null).build());
 
-        assertEquals("Senha não pode ser nula", validationException.getMessage());
+        assertEquals("Senha é obrigatória", validationException.getMessage());
     }
 
 }
