@@ -3,6 +3,9 @@ package br.com.joaopedroafluz.barriga.domain;
 import br.com.joaopedroafluz.barriga.domain.builders.UsuarioBuilder;
 import br.com.joaopedroafluz.barriga.domain.exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,28 +28,16 @@ public class UsuarioTest {
                 () -> assertEquals("123456789", usuario.getSenha()));
     }
 
-    @Test
-    public void deveRejeitarCriacaoUsuarioSemNome() {
+    @ParameterizedTest(name = "[{index}] - {4}")
+    @CsvSource(value = {
+            "1, NULL, joao.pedro.luz@hotmail.com, 123456789, Nome é obrigatório",
+            "1, João, NULL, 123456789, Email é obrigatório",
+            "1, João, joao.pedro.luz@hotmail.com, NULL, Senha é obrigatória"}, nullValues = "NULL")
+    public void deveValidarCamposObrigatorios(Long id, String nome, String email, String senha, String mensagem) {
         var validationException = assertThrows(ValidationException.class,
-                () -> UsuarioBuilder.umUsuario().comNome(null).build());
+                () -> UsuarioBuilder.umUsuario().comId(id).comNome(nome).comEmail(email).comSenha(senha).build());
 
-        assertEquals("Nome é obrigatório", validationException.getMessage());
-    }
-
-    @Test
-    public void deveRejeitarCriacaoUsuarioSemEmail() {
-        var validationException = assertThrows(ValidationException.class,
-                () -> UsuarioBuilder.umUsuario().comEmail(null).build());
-
-        assertEquals("Email é obrigatório", validationException.getMessage());
-    }
-
-    @Test
-    public void deveRejeitarCriacaoUsuarioSemSenha() {
-        var validationException = assertThrows(ValidationException.class,
-                () -> UsuarioBuilder.umUsuario().comSenha(null).build());
-
-        assertEquals("Senha é obrigatória", validationException.getMessage());
+        assertEquals(mensagem, validationException.getMessage());
     }
 
 }
