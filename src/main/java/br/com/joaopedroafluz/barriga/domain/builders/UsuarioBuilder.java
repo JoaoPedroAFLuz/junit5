@@ -8,7 +8,8 @@ public class UsuarioBuilder {
     private String email;
     private String senha;
 
-    private UsuarioBuilder(){}
+    private UsuarioBuilder() {
+    }
 
     public static UsuarioBuilder umUsuario() {
         UsuarioBuilder builder = new UsuarioBuilder();
@@ -17,10 +18,10 @@ public class UsuarioBuilder {
     }
 
     private static void inicializarDadosPadroes(UsuarioBuilder builder) {
-        builder.id = 0L;
-        builder.nome = "";
-        builder.email = "";
-        builder.senha = "";
+        builder.id = 1L;
+        builder.nome = "João";
+        builder.email = "joao.pedro.luz@hotmail.com";
+        builder.senha = "123456789";
     }
 
     public UsuarioBuilder comId(Long id) {

@@ -2,6 +2,8 @@ package br.com.joaopedroafluz.barriga.domain;
 
 import br.com.joaopedroafluz.barriga.domain.exceptions.ValidationException;
 
+import java.util.Objects;
+
 public class Usuario {
 
     private Long id;
@@ -50,6 +52,23 @@ public class Usuario {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Usuario usuario = (Usuario) o;
+
+        return Objects.equals(nome, usuario.nome)
+                && Objects.equals(email, usuario.email)
+                && Objects.equals(senha, usuario.senha);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nome, email, senha);
     }
 
 }

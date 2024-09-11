@@ -1,18 +1,14 @@
 package br.com.joaopedroafluz.barriga.domain.builders;
 
-import br.com.joaopedroafluz.barriga.domain.Usuario;
-
-import static java.lang.String.format;
+import br.com.joaopedroafluz.barriga.domain.Conta;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 /**
  * Classe responsável pela criação de builders de entidades
@@ -138,6 +134,6 @@ public class BuilderMaster {
 
     public static void main(String[] args) {
         BuilderMaster master = new BuilderMaster();
-        master.gerarCodigoClasse(Usuario.class);
+        master.gerarCodigoClasse(Conta.class);
     }
 }

@@ -12,12 +12,7 @@ public class UsuarioTest {
 
     @Test
     public void deveCriarUsuarioValido() {
-        var usuario = UsuarioBuilder.umUsuario()
-                .comId(1L)
-                .comNome("João")
-                .comEmail("joao.pedro.luz@hotmail.com")
-                .comSenha("123456789")
-                .build();
+        var usuario = UsuarioBuilder.umUsuario().build();
 
         assertAll("Criação de usuário",
                 () -> assertNotNull(usuario),
