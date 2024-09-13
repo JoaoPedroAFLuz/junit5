@@ -1,49 +1,79 @@
 package br.com.joaopedroafluz.barriga.service;
 
 import br.com.joaopedroafluz.barriga.domain.exceptions.ValidationException;
-import br.com.joaopedroafluz.barriga.infra.UsuarioDummyRepository;
+import br.com.joaopedroafluz.barriga.repository.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static br.com.joaopedroafluz.barriga.domain.builders.UsuarioBuilder.umUsuario;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class UsuarioServiceTest {
 
     private UsuarioService usuarioService;
-
+    private UsuarioRepository usuarioRepository;
 
     @BeforeEach
     public void beforeEach() {
-        usuarioService = new UsuarioService(new UsuarioDummyRepository());
+        usuarioRepository = mock(UsuarioRepository.class);
+
+        usuarioService = new UsuarioService(usuarioRepository);
     }
 
     @Test
-    public void deveCriarUsuarioComSucesso() {
+    public void deveSalvarUsuarioComSucesso() {
         var usuario = umUsuario().build();
+
+        when(usuarioRepository.salvar(usuario))
+                .thenReturn(usuario);
 
         var usuarioSalvo = usuarioService.salvar(usuario);
 
         assertAll("Criação de usuário",
                 () -> assertNotNull(usuarioSalvo),
-                () -> assertNotNull(usuarioSalvo.getId()));
+                () -> assertEquals(usuario, usuarioSalvo));
     }
 
     @Test
-    public void naoDeveCriarUsuarioQuandoEmailJaEmUso() {
+    public void deveLancarExcecaoQuandoTentarCadastrarUsuarioComEmailJaCadastrado() {
+        var email = "joao.pedro.luz@hotmail.com";
+
+        when(usuarioRepository.buscarPorEmail(email))
+                .thenReturn(Optional.of(umUsuario().comEmail(email).build()));
+
         var validationException = assertThrows(ValidationException.class,
-                () -> usuarioService.salvar(umUsuario().comEmail("dummy@email.com").build()));
+                () -> usuarioService.salvar(umUsuario().comEmail(email).build()));
 
-        assertEquals("Já existe um usuário com o email dummy@email.com", validationException.getMessage());
+        assertEquals(String.format("Já existe um usuário com o email %s", email), validationException.getMessage());
     }
 
     @Test
-    public void deveBuscarUsuarioPorEmail() {
-        var usuarioEncontrado = usuarioService.buscarPorEmail("dummy@email.com");
+    public void deveRetornarUsuarioPorEmail() {
+        var email = "joao.pedro.luz@hotmail.com";
 
-        assertAll("Busca por email",
-                () -> assertNotNull(usuarioEncontrado),
-                () -> assertEquals("dummy@email.com", usuarioEncontrado.get().getEmail()));
+        when(usuarioRepository.buscarPorEmail(email))
+                .thenReturn(Optional.of(umUsuario().comEmail(email).build()));
+
+        var usuario = usuarioService.buscarPorEmail(email);
+
+        assertAll("Busca de usuário por email",
+                () -> assertTrue(usuario.isPresent()),
+                () -> assertNotNull(usuario.get().getId()),
+                () -> assertEquals(email, usuario.get().getEmail()));
+    }
+
+    @Test
+    public void deveRetornarEmptyQuandoUsuarioNaoEncontrado() {
+        var emailNaoCadastrado = "email.nao.cadastrado@email.com";
+
+        var usuario = usuarioService.buscarPorEmail(emailNaoCadastrado);
+
+        assertTrue(usuario.isEmpty());
+
+        verify(usuarioRepository, times(1)).buscarPorEmail(emailNaoCadastrado);
     }
 
 }
