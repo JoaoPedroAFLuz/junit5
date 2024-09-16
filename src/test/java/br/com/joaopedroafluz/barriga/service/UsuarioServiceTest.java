@@ -25,16 +25,19 @@ public class UsuarioServiceTest {
 
     @Test
     public void deveSalvarUsuarioComSucesso() {
-        var usuario = umUsuario().build();
+        var usuario = umUsuario().comId(null).build();
 
         when(usuarioRepository.salvar(usuario))
-                .thenReturn(usuario);
+                .thenReturn(umUsuario().build());
 
         var usuarioSalvo = usuarioService.salvar(usuario);
 
         assertAll("Criação de usuário",
                 () -> assertNotNull(usuarioSalvo),
+                () -> assertEquals(1L, usuarioSalvo.getId()),
                 () -> assertEquals(usuario, usuarioSalvo));
+
+        verify(usuarioRepository).buscarPorEmail(usuario.getEmail());
     }
 
     @Test
