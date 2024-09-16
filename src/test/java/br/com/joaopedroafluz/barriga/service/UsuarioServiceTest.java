@@ -2,8 +2,11 @@ package br.com.joaopedroafluz.barriga.service;
 
 import br.com.joaopedroafluz.barriga.domain.exceptions.ValidationException;
 import br.com.joaopedroafluz.barriga.repository.UsuarioRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
@@ -11,17 +14,15 @@ import static br.com.joaopedroafluz.barriga.domain.builders.UsuarioBuilder.umUsu
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class UsuarioServiceTest {
 
-    private UsuarioService usuarioService;
+    @Mock
     private UsuarioRepository usuarioRepository;
 
-    @BeforeEach
-    public void beforeEach() {
-        usuarioRepository = mock(UsuarioRepository.class);
+    @InjectMocks
+    private UsuarioService usuarioService;
 
-        usuarioService = new UsuarioService(usuarioRepository);
-    }
 
     @Test
     public void deveSalvarUsuarioComSucesso() {
@@ -43,14 +44,17 @@ public class UsuarioServiceTest {
     @Test
     public void deveLancarExcecaoQuandoTentarCadastrarUsuarioComEmailJaCadastrado() {
         var email = "joao.pedro.luz@hotmail.com";
+        var usuario = umUsuario().comEmail(email).build();
 
         when(usuarioRepository.buscarPorEmail(email))
-                .thenReturn(Optional.of(umUsuario().comEmail(email).build()));
+                .thenReturn(Optional.of(usuario));
 
         var validationException = assertThrows(ValidationException.class,
-                () -> usuarioService.salvar(umUsuario().comEmail(email).build()));
+                () -> usuarioService.salvar(usuario));
 
         assertEquals(String.format("Já existe um usuário com o email %s", email), validationException.getMessage());
+
+        verify(usuarioRepository, never()).salvar(usuario);
     }
 
     @Test
