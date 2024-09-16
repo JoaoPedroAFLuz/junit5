@@ -1,6 +1,7 @@
 package br.com.joaopedroafluz.barriga.service;
 
 import br.com.joaopedroafluz.barriga.domain.exceptions.ValidationException;
+import br.com.joaopedroafluz.barriga.external.ContaEvent;
 import br.com.joaopedroafluz.barriga.repository.ContaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,16 +21,21 @@ public class ContaServiceTest {
     @Mock
     private ContaRepository contaRepository;
 
+    @Mock
+    private ContaEvent contaEvent;
+
     @InjectMocks
     private ContaService contaService;
 
 
     @Test
-    public void deveSalvarPrimeiraContaComSucesso() {
+    public void deveSalvarPrimeiraContaComSucesso() throws Exception {
         var novaConta = umaConta().comId(null).build();
 
         when(contaRepository.salvar(novaConta))
                 .thenReturn(umaConta().build());
+
+        doNothing().when(contaEvent).expedir(umaConta().build(), ContaEvent.EventType.CRIADA);
 
         var contaSalva = contaService.salvar(novaConta);
 
@@ -77,6 +83,26 @@ public class ContaServiceTest {
                 validationException.getMessage());
 
         verify(contaRepository, never()).salvar(contaComNomeRepetido);
+    }
+
+    @Test
+    public void deveLancarExcecaoQuandoNaoConseguirExpedirEventoDeContaCriada() throws Exception {
+        var novaConta = umaConta().comId(null).build();
+        var contaSalva = umaConta().build();
+
+        when(contaRepository.salvar(novaConta))
+                .thenReturn(contaSalva);
+
+        doThrow(new Exception("Não foi possível expedir evento de criação de conta"))
+                .when(contaEvent).expedir(contaSalva, ContaEvent.EventType.CRIADA);
+
+        var validationException = assertThrows(Exception.class, () -> contaService.salvar(novaConta));
+
+        assertEquals("Não foi possível criar a conta, tente novamente mais tarde",
+                validationException.getMessage());
+
+        verify(contaRepository).buscarContaPorUsuarioIdENome(novaConta.getUsuario().getId(), novaConta.getNome());
+        verify(contaRepository).remover(contaSalva);
     }
 
 }
