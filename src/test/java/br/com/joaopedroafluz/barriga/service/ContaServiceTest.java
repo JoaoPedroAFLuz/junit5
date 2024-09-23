@@ -1,10 +1,13 @@
 package br.com.joaopedroafluz.barriga.service;
 
+import br.com.joaopedroafluz.barriga.domain.Conta;
 import br.com.joaopedroafluz.barriga.domain.exceptions.ValidationException;
 import br.com.joaopedroafluz.barriga.external.ContaEvent;
 import br.com.joaopedroafluz.barriga.repository.ContaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,12 +21,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class ContaServiceTest {
 
+    @Captor
+    private ArgumentCaptor<Conta> contaCaptor;
     @Mock
     private ContaRepository contaRepository;
-
     @Mock
     private ContaEvent contaEvent;
-
     @InjectMocks
     private ContaService contaService;
 
@@ -32,7 +35,7 @@ public class ContaServiceTest {
     public void deveSalvarPrimeiraContaComSucesso() throws Exception {
         var novaConta = umaConta().comId(null).build();
 
-        when(contaRepository.salvar(novaConta))
+        when(contaRepository.salvar(any(Conta.class)))
                 .thenReturn(umaConta().build());
 
         doNothing().when(contaEvent).expedir(umaConta().build(), ContaEvent.EventType.CRIADA);
@@ -45,6 +48,9 @@ public class ContaServiceTest {
                 () -> assertEquals(novaConta, contaSalva));
 
         verify(contaRepository).buscarContaPorUsuarioIdENome(novaConta.getUsuario().getId(), novaConta.getNome());
+        verify(contaRepository).salvar(contaCaptor.capture());
+
+        assertEquals(novaConta, contaCaptor.getValue());
     }
 
     @Test
